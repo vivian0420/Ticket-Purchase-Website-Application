@@ -9,6 +9,9 @@ public class LoginPageHtml {
                       <head>
                         <title>EventForYou</title>
                         <meta charset="utf-8">
+                        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+                        <script src="https://apis.google.com/js/platform.js" async defer></script>
+                        <meta name="google-signin-client_id" content="760872738319-lfla8lsl8s03eb6jdahksego1g9tdrfv.apps.googleusercontent.com">
                         <meta name="viewport" content="width=device-width, initial-scale=1">
                         <style>
                          body {
@@ -51,6 +54,7 @@ public class LoginPageHtml {
                            display: table;
                          }
                         </style>
+                        
                       </head>
                       <body>
                         <div class="header">
@@ -59,7 +63,21 @@ public class LoginPageHtml {
                         </div>
                         
                         <div class="topnav">
-                           <button id="login">Login</button>
+                           <div class="g-signin2" data-onsuccess="onSignIn" data-redirecturi="http://localhost:8888/home"></div>
+                           
+                           <script>
+                             function onSignIn(googleUser) {
+                               var profile = googleUser.getBasicProfile();
+                               console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+                               console.log('Name: ' + profile.getName());
+                               console.log('Image URL: ' + profile.getImageUrl());
+                               console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+                               console.log('id_token: ' + googleUser.getAuthResponse().id_token);
+                               $("#google_id_token").val(googleUser.getAuthResponse().id_token);
+                               $("#google_login_form").submit();
+                             }
+                            
+                           </script>
                         </div>
                         
                         <div class="row">
@@ -72,11 +90,10 @@ public class LoginPageHtml {
                             <img src="https://user-images.githubusercontent.com/86545567/142334592-92f3ede1-09cd-45ac-87d1-133c1ed87373.gif" alt="coffee" style="width:100%; margin-top: 30px;">
                           </div>
                           <div class="column">
-                            
                             <img src="https://user-images.githubusercontent.com/86545567/142339059-17c9ea96-4002-45f5-a8d8-2a8e7884b6c3.jpeg" alt="coffee" style="width:200; height: 325px;margin-top: 150px; margin-right: 10px;">
-                            
+                          </div>
                         </div>
-                        
+                        <form action="/login" method="post" id="google_login_form"><input type="hidden" name="google_id_token" id="google_id_token"/></form>
                         
                       </body>
                     </html>

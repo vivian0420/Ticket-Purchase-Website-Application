@@ -1,14 +1,33 @@
 package cs601.project4;
 
 public class HomeHtml {
-    public static String getHomeHtml() {
-        return """
+    public static String getHomeHtml(String user) {
+        return String.format("""
                 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
                   <html xmlns="http://www.w3.org/1999/xhtml">
                     <html>
                       <head>
                         <title>EventForYou</title>
                         <meta charset="utf-8">
+                        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+                        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+                        <script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
+                        <meta name="google-signin-client_id" content="760872738319-lfla8lsl8s03eb6jdahksego1g9tdrfv.apps.googleusercontent.com">
+                        <script>
+                        
+                        function signOut() {
+                               var auth2 = gapi.auth2.getAuthInstance();
+                               auth2.signOut().then(function () {
+                                 console.log('User signed out.');
+                               });
+                             }
+                        // https://stackoverflow.com/questions/29815870/typeerror-gapi-auth2-undefined
+                        function onLoad() {
+                              gapi.load('auth2', function() {
+                                gapi.auth2.init();
+                              });
+                            }
+                        </script>
                         <meta name="viewport" content="width=device-width, initial-scale=1">
                         <Style>
                         
@@ -35,15 +54,10 @@ public class HomeHtml {
                          .topnav {
                            overflow: hidden;
                            background-color: #778899;
-                           padding: 8px 16px;
+                          
                          }
                          
                          form {
-                           float: right;
-                           margin-right: 40px;
-                         }
-                         
-                         #newEvent {
                            float: right;
                            margin-right: 40px;
                          }
@@ -59,8 +73,8 @@ public class HomeHtml {
                              padding-top: 100px; /* Location of the box */
                              left: 0;
                              top: 0;
-                             width: 100%; /* Full width */
-                             height: 100%; /* Full height */
+                             width: 100%%; /* Full width */
+                             height: 100%%; /* Full height */
                              overflow: auto; /* Enable scroll if needed */
                              background-color: rgb(0,0,0); /* Fallback color */
                              background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
@@ -70,7 +84,7 @@ public class HomeHtml {
                              margin: auto;
                              padding: 20px;
                              border: 1px solid #888;
-                             width: 60%;
+                             width: 60%%;
                          }
                          .close {
                              color: #aaaaaa;
@@ -85,19 +99,17 @@ public class HomeHtml {
                              cursor: pointer;
                          }
                          #eventName,#starttime,#endtime,#capacity,#add1,#add2,#city,#state,#zipcode,#price,#description{
-                           width: 100%;
+                           width: 100%%;
                            padding: 12px 20px;
                            margin: 8px 0;
                            display: inline-block;
                            border: 1px solid #ccc;
-                           
-                           
                          }
                          #confirm {
                            background-color: #B0E0E6;
                            color: black;
                            border: none;
-                           text-align: center
+                           text-align: center;
                            cursor: pointer;
                            padding: 14px 20px;
                            border: 2px solid #778899;
@@ -105,7 +117,7 @@ public class HomeHtml {
                          }
                          .leftnav {
                            float: left;
-                           width: 10%;
+                           width: 10%%;
                            height: flex;
                            text-align: left;
                            background: #ccc;
@@ -120,7 +132,7 @@ public class HomeHtml {
                          }
                              
                          .column.left {
-                           width: 15%;
+                           width: 15%%;
                            
                            margin-top: 10px;
                            margin-bottom: 10px;
@@ -138,17 +150,99 @@ public class HomeHtml {
                         </div>
                         
                         <div class="topnav">
+                         <text>Welcome %s  </text>
+                         <a href="/logout" onclick="signOut();">Sign out</a>
                          <form accept-charset="utf-8">
                             <input type="text" name="search" value=""/>
                             <button id='search' type='submit'>Search</button>
                          </form>
-                         <button onclick="location.href = 'http://localhost:8888/';" id="myHome" class="float-left submit-button" >Home</button>
-                         <button id="newEvent">Add New Event</button>
-                         <!-- The Modal -->
-                         <div id="myModal" class="modal">
+                        </div>
+                        
+                        <script type="text/javascript">
+                         // Get the modal
+                         var modal = document.getElementById("myModal");
+                         // Get the button that opens the modal
+                         var btn = document.getElementById("newEvent");
+                         var span = document.getElementsByClassName("close")[0];
+                         // When the user clicks the button, open the modal
+                           
+                           function show_create_event() {
+                             $("#myModal").show();
+                           }
+                         // When the user clicks on <span> (x), close the modal
+                           function close_create_event() {
+                             $("#myModal").hide();
+                           }
+                         // When the user clicks anywhere outside of the modal, close it
+                           window.onclick = function(event) {
+                             if (event.target == modal) {
+                               modal.style.display = "none";
+                             }
+                           }
+                           
+//                         function create_event(){
+//                           $("#myModal").hide();
+//                             $.ajax({
+//                               type: 'POST',
+//                               url: '/createEvent',
+//                               data: JSON.stringify ({
+//                               eventname: $("#eventName").val(),
+//                               starttime: $("#starttime").val(),
+//                               endtime: $("#endtime").val(),
+//                               capacity: $("#capacity").val(),
+//                               address1: $("#add1").val(),
+//                               address2: $("#add2").val(),
+//                               city: $("#city").val(),
+//                               state: $("#state").val(),
+//                               zipcode: $("#zipcode").val(),
+//                               price: $("#price").val(),
+//                               description: $("#description").val()
+//                             }),
+//                             success: function(data) {
+//                               alert('data: ' + data["success"]);
+//                               window.location.href = "/home";
+//                               
+//                               $("#eventName").val('');
+//                               $("#starttime").val('');
+//                               $("#endtime").val('');
+//                               $("#capacity").val('');
+//                               $("#address1").val('');
+//                               $("#address2").val('');
+//                               $("#city").val('');
+//                               $("#state").val('');
+//                               $("#zipcode").val('');
+//                               $("#price").val('');
+//                               $("#description").val('');
+//                             },
+//                             contentType: "application/json",
+//                             dataType: 'json'
+//                           });
+//                         }
+                         
+                         function set_timezone() {
+                            $("#timezone").val(Intl.DateTimeFormat().resolvedOptions().timeZone);
+                         }
+                         
+                         
+                         
+                      </script>
+                      </div>
+                      
+                      <div class="row">
+                        <div class="column left">
+                          <p><a href="/" style="text-decoration:none; color:#000000; size: 10px;">Home</a></p>
+                          <p><a href="#" style="text-decoration:none; color:#000000; size: 10px;">Account</a></p>
+                          <p><a href="#" style="text-decoration:none; color:#000000; size: 10px;">Transaction</a></p>
+                          <p><a href="#" style="text-decoration:none; color:#000000; size: 10px;">All events</a></p>
+                          <p><a id="newEvent" data-toggle="modal" href="#myModal" style="text-decoration:none; color:#000000; size: 10px;" onclick="show_create_event()">Add new event</a></p>
+                          <!-- The Modal -->
+                          <form action="/createEvent" method="post">
+                          <div id="myModal" class="modal">
                             <!-- Modal content -->
                             <div class="modal-content">
-                               <span class="close">&times;</span>
+                               <input type="hidden" name="timezone" id="timezone" />
+                               
+                               <span class="close" data-dismiss="modal" onclick="close_create_event()">&times;</span>
                                <label id="name" for="eventName"><b>Name:</b></label>
                                <input id="eventName" type="text" placeholder="Enter event name" name="eventName" required>
                         
@@ -159,7 +253,7 @@ public class HomeHtml {
                                <input type="datetime-local" id="endtime" name="endtime">
                                  
                                <label for="capacity"><b>Capacity:</b></label>
-                               <input id="capacity" type="text" placeholder="Enter capacity" name="capacity" required>
+                               <input id="capacity" type="number" placeholder="Enter capacity" name="capacity" required>
                                
                                <label for="address1"><b>Address1:</b></label>
                                <input id="add1" type="text" placeholder="Enter address" name="add1" required>
@@ -182,91 +276,16 @@ public class HomeHtml {
                                <label for="description"><b>Description:</b></label>
                                <input id="description" type="text" placeholder="Enter description" name="description" >
                         
-                               <button id="confirm" type="submit" >Confirm</button>
-                         
-                         
+                               <button id="confirm" type="submit" onclick="set_timezone()">Confirm</button>
                         </div>
                         </div>
-                        <script>
-                         // Get the modal
-                         var modal = document.getElementById("myModal");
-                         // Get the button that opens the modal
-                         var btn = document.getElementById("newEvent");
-                         
-                         var conf = document.getElementById("confirm");
-                         conf.onclick = function(){
-                           modal.style.display = "none";
-                             $.ajax({
-                               type: 'POST',
-                               url: '/CreateEventServlet',
-                               data: JSON.stringify ({
-                               eventname: $("#eventName").val(),
-                               starttime: $("#starttime").val(),
-                               endtime: $("#endtime").val(),
-                               capacity: $("#capacity").val(),
-                               address1: $("#add1").val(),
-                               address2: $("#add2").val(),
-                               city: $("#city").val(),
-                               state: $("#state").val(),
-                               zipcode: $("#zipcode").val(),
-                               price: $("#price").val(),
-                               description: $("#description").val()
-                             }),
-                             success: function(data) {
-                               alert('data: ' + data["success"]);
-                               window.location.href = "http://localhost:8888/";
-                               
-                               $("#eventName").val('');
-                               $("#starttime").val('');
-                               $("#endtime").val('');
-                               $("#capacity").val('');
-                               $("#address1").val('');
-                               $("#address2").val('');
-                               $("#city").val('');
-                               $("#state").val('');
-                               $("#zipcode").val('');
-                               $("#price").val('');
-                               $("#description").val('');
-                             },
-                             contentType: "application/json",
-                             dataType: 'json'
-                           });
-                         }
-                         
-                         var span = document.getElementsByClassName("close")[0];
-                         // When the user clicks the button, open the modal
-                           btn.onclick = function() {
-                             modal.style.display = "block";
-                           }
-                         // When the user clicks on <span> (x), close the modal
-                           span.onclick = function() {
-                             modal.style.display = "none";
-                           }
-                         // When the user clicks anywhere outside of the modal, close it
-                           window.onclick = function(event) {
-                             if (event.target == modal) {
-                               modal.style.display = "none";
-                             }
-                           }
-                        </script>
-                      </div>
-                      
-                      <div class="row">
-                        <div class="column left">
-                          <p><a href="http://localhost:8888/" style="text-decoration:none; color:#000000; size: 10px;">Home</a></p>
-                          <p><a href="#" style="text-decoration:none; color:#000000; size: 10px;">Account</a></p>
-                          <p><a href="#" style="text-decoration:none; color:#000000; size: 10px;">Transaction</a></p>
-                          <p><a href="#" style="text-decoration:none; color:#000000; size: 10px;">All events</a></p>
-                          
-                        </div>
+                        </form>
                         <div class="column right">
                         </div>
                         
-                      
-                      
                       </body>
                     </html>
                   </html>
-                """;
+                """, user);
     }
 }

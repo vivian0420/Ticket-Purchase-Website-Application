@@ -9,7 +9,9 @@ public class Application {
     public static void main(String[] args)throws Exception {
         Server server = new Server(8888);
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        context.addServlet(HomeServlet.class, "/");
+        context.addServlet(LoginServlet.class, "/login");
+        context.addServlet(HomeServlet.class, "/home");
+        context.addServlet(CreateEventServlet.class, "/createEvent");
         server.setHandler(context);
         server.start();
 

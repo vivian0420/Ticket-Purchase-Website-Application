@@ -11,9 +11,6 @@ import java.io.IOException;
 public class HomeServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-        resp.setStatus(HttpStatus.OK_200);
-        String content = new LoginPageHtml().getLoginHtml();
-        resp.getWriter().println(content);
+        resp.getWriter().write(HomeHtml.getHomeHtml("A hard coded user"));
     }
 }
