@@ -1,7 +1,7 @@
 package cs601.project4;
 
 public class HomeHtml {
-    public static String getHomeHtml(String user) {
+    public static String getHomeHtml(String user,String columnRight) {
         return String.format("""
                 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
                   <html xmlns="http://www.w3.org/1999/xhtml">
@@ -124,19 +124,21 @@ public class HomeHtml {
                            padding: 20px;
                            color: black;
                          }
-                         
-                         .column {
-                           float: left;
-                           padding: 10px;
-                           margin-left: 20px;
-                         }
                              
                          .column.left {
+                           float: left;
                            width: 15%%;
-                           
                            margin-top: 10px;
                            margin-bottom: 10px;
                            height: 400px;
+                         }
+                         
+                         .column.right {
+                           width: 85%%;
+                           margin-top: 10px;
+                           margin-bottom: 10px;
+                           height: 400px;
+                           overflow: scroll;
                          }
                          
                         </style>
@@ -223,6 +225,19 @@ public class HomeHtml {
                             $("#timezone").val(Intl.DateTimeFormat().resolvedOptions().timeZone);
                          }
                          
+                         function form_update() {
+                             $("#formAction").val('UPDATE');
+                             $("#timezone").val(Intl.DateTimeFormat().resolvedOptions().timeZone);
+                           }
+                           function form_delete() {
+                             $("#formAction").val('DELETE');
+                             $("#timezone").val(Intl.DateTimeFormat().resolvedOptions().timeZone);
+                           }
+                         
+                         function purchase() {
+                             alert('data: ' + data["success"]);
+                             window.location.href = "/buyTicket";
+                         }
                          
                          
                       </script>
@@ -230,11 +245,13 @@ public class HomeHtml {
                       
                       <div class="row">
                         <div class="column left">
-                          <p><a href="/" style="text-decoration:none; color:#000000; size: 10px;">Home</a></p>
-                          <p><a href="#" style="text-decoration:none; color:#000000; size: 10px;">Account</a></p>
-                          <p><a href="#" style="text-decoration:none; color:#000000; size: 10px;">Transaction</a></p>
-                          <p><a href="#" style="text-decoration:none; color:#000000; size: 10px;">All events</a></p>
-                          <p><a id="newEvent" data-toggle="modal" href="#myModal" style="text-decoration:none; color:#000000; size: 10px;" onclick="show_create_event()">Add new event</a></p>
+                          <p><a href="/home" style="text-decoration:none; color:#000000; size: 10px; margin-left:20px;" onclick="/home" >Home</a></p>
+                          <p><a href="/account" style="text-decoration:none; color:#000000; size: 10px; margin-left:20px;" onclick="/account">Account</a></p>
+                          <p><a href="/myTickets" style="text-decoration:none; color:#000000; size: 10px; margin-left:20px;">My Tickets</a></p>
+                          <p><a href="/allEvents" style="text-decoration:none; color:#000000; size: 10px; margin-left:20px;">All events</a></p>
+                          <p><a href="/myEvents" style="text-decoration:none; color:#000000; size: 10px; margin-left:20px;">My events</a></p>
+                          <p><a id="newEvent" data-toggle="modal" href="#myModal" style="text-decoration:none; color:#000000; size: 10px; margin-left:20px;"  onclick="show_create_event()">Add new event</a></p>
+                          
                           <!-- The Modal -->
                           <form action="/createEvent" method="post">
                           <div id="myModal" class="modal">
@@ -277,15 +294,19 @@ public class HomeHtml {
                                <input id="description" type="text" placeholder="Enter description" name="description" >
                         
                                <button id="confirm" type="submit" onclick="set_timezone()">Confirm</button>
-                        </div>
+                          </div>
+                         </div>
                         </div>
                         </form>
                         <div class="column right">
+                           
+                            %s
                         </div>
+                      </div>
                         
                       </body>
                     </html>
                   </html>
-                """, user);
+                """, user, columnRight);
     }
 }

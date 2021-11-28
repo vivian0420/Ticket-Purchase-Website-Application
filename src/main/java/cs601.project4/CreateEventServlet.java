@@ -94,9 +94,12 @@ public class CreateEventServlet extends HttpServlet {
             throwables.printStackTrace();
         }
 
-        LOGGER.info(req.getParameterMap().toString());
-        JsonObject json = new JsonObject();
-        json.addProperty("success", "success");
-        resp.getWriter().write(json.toString());
+        resp.setStatus(302);
+        resp.setHeader("location", "/myEvents");
+
+//        LOGGER.info(req.getParameterMap().toString());
+//        JsonObject json = new JsonObject();
+//        json.addProperty("success", "success");
+//        resp.getWriter().write(json.toString());
     }
 }

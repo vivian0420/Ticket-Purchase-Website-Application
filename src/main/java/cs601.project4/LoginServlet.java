@@ -3,6 +3,8 @@ package cs601.project4;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.eclipse.jetty.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -19,10 +21,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 
 public class LoginServlet extends HttpServlet {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoginServlet.class);
+
    final static String CONNECTION_STRING = "jdbc:mysql://localhost:3306/project4?user=root&password=2281997163";
 
     @Override
@@ -37,6 +41,9 @@ public class LoginServlet extends HttpServlet {
         if(!req.getParameterMap().containsKey("google_id_token")) {
             resp.sendError(404, "google_id_token not found.");
         }
+
+
+        LOGGER.info(req.getParameterMap().toString());
 
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest tokenRequest = HttpRequest.newBuilder()
@@ -53,6 +60,7 @@ public class LoginServlet extends HttpServlet {
 
         if(googleResponse.statusCode()!= 200) {
             resp.sendError(googleResponse.statusCode(), "Google returns: " + googleResponse.statusCode());
+            return;
         }
 
         try(Connection conn = DriverManager.getConnection(CONNECTION_STRING)) {
