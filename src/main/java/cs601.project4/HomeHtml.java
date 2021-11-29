@@ -154,10 +154,7 @@ public class HomeHtml {
                         <div class="topnav">
                          <text>Welcome %s  </text>
                          <a href="/logout" onclick="signOut();">Sign out</a>
-                         <form accept-charset="utf-8">
-                            <input type="text" name="search" value=""/>
-                            <button id='search' type='submit'>Search</button>
-                         </form>
+                         
                         </div>
                         
                         <script type="text/javascript">

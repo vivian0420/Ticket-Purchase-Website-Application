@@ -20,6 +20,7 @@ public class Application {
         context.addServlet(MyTicketServlet.class, "/myTickets");
         context.addServlet(UpdateServlet.class, "/update");
         context.addServlet(AccountServlet.class, "/account");
+        context.addServlet(LogoutServlet.class, "/logout");
         server.setHandler(context);
         server.start();
 
