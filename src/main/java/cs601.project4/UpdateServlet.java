@@ -1,10 +1,15 @@
 package cs601.project4;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -17,10 +22,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.UUID;
 
 import static cs601.project4.Application.CONNECTION_STRING;
 
 public class UpdateServlet extends HttpServlet {
+    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateServlet.class);
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         int eventID = Integer.parseInt(req.getParameter("eventID"));
@@ -52,6 +60,7 @@ public class UpdateServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try (Connection conn = DriverManager.getConnection(CONNECTION_STRING)) {
+            LOGGER.info(req.getParameterMap().toString());
             if (req.getParameter("formAction").equals("UPDATE")) {
                 int event_id = Integer.parseInt(req.getParameter("eventID"));
                 String eventname = req.getParameter("eventname");
@@ -82,10 +91,27 @@ public class UpdateServlet extends HttpServlet {
                 String zipcode = req.getParameter("zipcode");
                 String description = req.getParameter("description");
 
+                PreparedStatement imageNameQuery = conn.prepareStatement("SELECT image_name FROM Events WHERE event_id=?");
+                imageNameQuery.setInt(1,event_id);
+                ResultSet imageNameResult = imageNameQuery.executeQuery();
+                imageNameResult.next();
+                String userImage = req.getPart("image").getSubmittedFileName();
+                String imageName = null;
+                if(!userImage.isBlank() && !userImage.isEmpty()) {
+                    imageName = UUID.randomUUID().toString();
+                    try(FileOutputStream image = new FileOutputStream(new File("images/"+imageName))) {
+                        image.write(req.getPart("image").getInputStream().readAllBytes());
+                        new File("images/" + imageNameResult.getString("image_name")).delete();
+                    }
+                }
+                else if(userImage.isBlank() || userImage.isEmpty()) {
+                    imageName = imageNameResult.getString("image_name");
+                }
+
 
                 PreparedStatement insertQuery = conn.prepareStatement("UPDATE Events SET eventname=?, createdate=current_timestamp(), " +
-                        " address1=?, address2=?, city=?, state=?, zipcode=?, capacity=?, price=?, description=?, start_time=?, end_time=?" +
-                        " WHERE event_id=? ");
+                        " address1=?, address2=?, city=?, state=?, zipcode=?, capacity=?, price=?, description=?, start_time=?, end_time=?, " +
+                        " image_name=? WHERE event_id=? ");
                 insertQuery.setString(1, eventname);
                 insertQuery.setString(2, address1);
                 insertQuery.setString(3, address2);
@@ -97,7 +123,9 @@ public class UpdateServlet extends HttpServlet {
                 insertQuery.setString(9, description);
                 insertQuery.setTimestamp(10, new Timestamp(startTime.getTime()));
                 insertQuery.setTimestamp(11, new Timestamp(endTime.getTime()));
-                insertQuery.setInt(12, event_id);
+                insertQuery.setString(12, imageName);
+                insertQuery.setInt(13, event_id);
+
                 insertQuery.executeUpdate();
 
                 resp.setStatus(302);
@@ -120,13 +148,13 @@ public class UpdateServlet extends HttpServlet {
 
         private String getContent(String userName, int id, Connection conn) throws SQLException {
         PreparedStatement eventQuery = conn.prepareStatement("SELECT event_id, eventname, capacity, price, start_time," +
-                " end_time, address1, address2, city, state, zipcode, description FROM Events WHERE event_id=?");
+                " end_time, address1, address2, city, state, zipcode, description, image_name FROM Events WHERE event_id=?");
         eventQuery.setInt(1,id);
         ResultSet eventResultSet = eventQuery.executeQuery();
         eventResultSet.next();
         final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        String htmlItem = "<table>";
-        htmlItem += "<form action='/update' method='post' accept-charset='utf-8'><tr>" + "<td>" + "Name: " + "</td>" + "<td><input type='text' value='" + eventResultSet.getString("eventname") + "' name='eventname'/></td>" + "</tr>";
+        String htmlItem = "<table><tr><td><table>";
+        htmlItem += "<form action='/update' method='post' enctype='multipart/form-data' accept-charset='utf-8'><tr>" + "<td>" + "Name: " + "</td>" + "<td><input type='text' value='" + eventResultSet.getString("eventname") + "' name='eventname'/></td>" + "</tr>";
         htmlItem += "<tr>" + "<td>" + "Capacity: " + "</td>" + "<td><input type='text' value='" + eventResultSet.getString("capacity") + "' name='capacity'/></td>" + "</tr>";
         htmlItem += "<tr>" + "<td>" + "Price: " + "</td>" + "<td><input type='text' value='" + eventResultSet.getDouble("price") + "' name='price'/></td>" + "</tr>";
         htmlItem += "<tr>" + "<td>" + "Start_time: " + "</td>" + "<td><input type='datetime-local' value='" + df.format(eventResultSet.getTimestamp("start_time")) + "' name='start_time'/></td>" + "</tr>";
@@ -136,12 +164,15 @@ public class UpdateServlet extends HttpServlet {
         htmlItem += "<tr>" + "<td>" + "City: " + "</td>" + "<td><input type='text' value='" + eventResultSet.getString("city") + "' name='city'/></td>" + "</tr>";
         htmlItem += "<tr>" + "<td>" + "State: " + "</td>" + "<td><input type='text' value='" + eventResultSet.getString("state") + "' name='state'/></td>" + "</tr>";
         htmlItem += "<tr>" + "<td>" + "Zipcode: " + "</td>" + "<td><input type='text' value='" + eventResultSet.getString("zipcode") + "' name='zipcode'/></td>" + "</tr>";
-        htmlItem += "<tr>" + "<td>" + "Description: " + "</td>" + "<td><input type='text' value='" + eventResultSet.getString("description") + "' name='description'/></td>" + "</tr>";
+        htmlItem += "<tr>" + "<td>" + "Description: " + "</td>" + "<td><textarea name='description' rows='4' cols='28'>" + eventResultSet.getString("description") + "</textarea></td>" + "</tr>";
+        htmlItem += "<tr>" + "<td><label for='image'>Image:</label></td>" + "<td><input id='image' type='file' name='image' accept='image/*'/></td></tr>";
+        htmlItem += "<tr></tr>";
         htmlItem += "<input type='hidden' name='eventID' value='" + eventResultSet.getInt("event_id") + "' />";
         htmlItem += "<input type='hidden' name='formAction' id='formAction' value='UPDATE'/>";
         htmlItem += "<input type='hidden' name='timezone' id='timezone' />";
         htmlItem += "<tr><td><button id='update' type='submit' onclick='form_update()'>Update</button></td>";
         htmlItem += "<td><button id='delete' type='submit' onclick='form_delete()'>Delete</button></td></tr></form>";
+        htmlItem += "</table></td><td><image  width='450px' src='/images?image_name=" + eventResultSet.getString("image_name") + "'/></td>";
         htmlItem += "</table>";
 
         String content = HomeHtml.getHomeHtml(userName, htmlItem);

@@ -9,6 +9,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -21,6 +23,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.UUID;
 
 public class CreateEventServlet extends HttpServlet {
 
@@ -74,8 +77,8 @@ public class CreateEventServlet extends HttpServlet {
 
 
             PreparedStatement insertQuery = conn.prepareStatement("INSERT into Events(eventname, createbyuserid, createdate, " +
-                    " address1, address2, city, state, zipcode, capacity, price, description, start_time, end_time) VALUES " +
-                    " (?,?,current_timestamp(),?,?,?,?,?,?,?,?,?,?) ");
+                    " address1, address2, city, state, zipcode, capacity, price, description, start_time, end_time, image_name) VALUES " +
+                    " (?,?,current_timestamp(),?,?,?,?,?,?,?,?,?,?,?) ");
             insertQuery.setString(1, eventName);
             insertQuery.setInt(2, userId);
             insertQuery.setString(3, address1);
@@ -88,6 +91,18 @@ public class CreateEventServlet extends HttpServlet {
             insertQuery.setString(10, description);
             insertQuery.setTimestamp(11, new Timestamp(startTime.getTime()));
             insertQuery.setTimestamp(12, new Timestamp(endTime.getTime()));
+
+            final String userImage = req.getPart("image").getSubmittedFileName();
+            if(!userImage.isBlank() && !userImage.isEmpty()) {
+                final String imageName = UUID.randomUUID().toString();
+                insertQuery.setString(13,imageName);
+                try(FileOutputStream image = new FileOutputStream(new File("images/"+imageName))){
+                    image.write(req.getPart("image").getInputStream().readAllBytes());
+                }
+            }
+            else {
+                insertQuery.setString(13,null);
+            }
             insertQuery.executeUpdate();
 
         } catch (SQLException throwables) {

@@ -1,9 +1,9 @@
 package cs601.project4;
 
-import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+
+import javax.servlet.MultipartConfigElement;
 
 
 public class Application {
@@ -13,12 +13,15 @@ public class Application {
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.addServlet(LoginServlet.class, "/login");
         context.addServlet(HomeServlet.class, "/home");
-        context.addServlet(CreateEventServlet.class, "/createEvent");
+        context.addServlet(CreateEventServlet.class, "/createEvent")
+                .getRegistration().setMultipartConfig(new MultipartConfigElement("images"));
+        context.addServlet(ImageServlet.class, "/images");
         context.addServlet(MyEventsServlet.class, "/myEvents");
         context.addServlet(AllEventsServlet.class, "/allEvents");
         context.addServlet(BuyTicketServlet.class, "/buyTicket");
-        context.addServlet(MyTicketServlet.class, "/myTickets");
-        context.addServlet(UpdateServlet.class, "/update");
+        context.addServlet(Transaction.class, "/transaction");
+        context.addServlet(UpdateServlet.class, "/update")
+                .getRegistration().setMultipartConfig(new MultipartConfigElement("images"));
         context.addServlet(AccountServlet.class, "/account");
         context.addServlet(LogoutServlet.class, "/logout");
         server.setHandler(context);

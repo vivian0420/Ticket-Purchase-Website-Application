@@ -36,7 +36,21 @@ public class HomeServlet extends HttpServlet {
                 return;
             }
             String userName = userSet.getString("name");
-            resp.getWriter().write(HomeHtml.getHomeHtml(userName, ""));
+
+            PreparedStatement pictureQuery = conn.prepareStatement("SELECT sold.event_id, e.image_name FROM events e, (select event_id, count(ticket_id) as sold " +
+                    " FROM ticket GROUP by event_id ORDER by count(ticket_id)) sold WHERE e.event_id = sold.event_id ORDER by sold.sold desc limit 3; ");
+            ResultSet pictureSet = pictureQuery.executeQuery();
+            pictureSet.next();
+            String picture1 = pictureSet.getString("image_name");
+            int eventId1 = pictureSet.getInt("event_id");
+            pictureSet.next();
+            String picture2 = pictureSet.getString("image_name");
+            int eventId2 = pictureSet.getInt("event_id");
+            pictureSet.next();
+            String picture3 = pictureSet.getString("image_name");
+            int eventId3 = pictureSet.getInt("event_id");
+            String homePagePictures = MainPageHtml.getMainPageHtml(picture1,picture2,picture3);
+            resp.getWriter().write(HomeHtml.getHomeHtml(userName, homePagePictures));
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
