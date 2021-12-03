@@ -1,5 +1,7 @@
 package cs601.project4;
 
+import com.google.gson.JsonObject;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
@@ -12,11 +14,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static cs601.project4.Application.CONNECTION_STRING;
-
 public class AccountServlet extends HttpServlet {
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
         String session = "";
         for (Cookie cookie : req.getCookies()) {
             if (cookie.getName().equals("session")) {
@@ -24,7 +26,7 @@ public class AccountServlet extends HttpServlet {
             }
         }
 
-        try (Connection conn = DriverManager.getConnection(CONNECTION_STRING)) {
+        try (Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
 
             PreparedStatement userQuery = conn.prepareStatement("SELECT u.name, u.user_id FROM User u, User_session s WHERE session=? AND u.user_id=s.user_id and s.active = 1 and expiration > current_timestamp()");
             userQuery.setString(1, session);
@@ -46,16 +48,16 @@ public class AccountServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try (Connection conn = DriverManager.getConnection(CONNECTION_STRING)) {
+        try (Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
+            int userId = Integer.parseInt(req.getParameter("userID"));
             String name = req.getParameter("name");
-            String email = req.getParameter("email");
             String givenName = req.getParameter("given_name");
             String familyName = req.getParameter("family_name");
-            PreparedStatement updateUser = conn.prepareStatement("UPDATE User SET name=?, email=?, given_name=?, family_name=?");
+            PreparedStatement updateUser = conn.prepareStatement("UPDATE User SET name=?, given_name=?, family_name=? WHERE user_id=?");
             updateUser.setString(1,name);
-            updateUser.setString(2,email);
-            updateUser.setString(3,givenName);
-            updateUser.setString(4,familyName);
+            updateUser.setString(2,givenName);
+            updateUser.setString(3,familyName);
+            updateUser.setInt(4,userId);
             updateUser.executeUpdate();
 
             resp.setStatus(302);
@@ -76,10 +78,10 @@ public class AccountServlet extends HttpServlet {
         String htmlTable = "<table>";
         htmlTable += "<h3>My Account:</h3>";
         htmlTable += "<form action='/account' method='post' accept-charset='utf-8'><tr>" + "<td><b>" + "Name: " + "</b></td>" + "<td><input style='margin-left:10px;' type='text' value='" + userResult.getString("name") + "' name='name'/></td>" + "</tr>";
-        htmlTable += "<tr>" + "<td><b>" + "Email: " + "</b></td>" + "<td><input style='margin-left:10px;' type='text' value='" + userResult.getString("email") + "' name='email'/></td>" + "</tr>";
+        htmlTable += "<tr>" + "<td><b>" + "Email: " + "</b></td>" + "<td><input style='margin-left:10px;' readonly='readonly' type='text' value='" + userResult.getString("email") + "' name='email'/></td>" + "</tr>";
         htmlTable += "<tr>" + "<td><b>" + "Given_name: " + "</b></td>" + "<td><input style='margin-left:10px;' type='text' value='" + userResult.getString("given_name") + "' name='given_name'/></td>" + "</tr>";
         htmlTable += "<tr>" + "<td><b>" + "Family_name: " + "</b></td>" + "<td><input style='margin-left:10px;' type='text' value='" + userResult.getString("family_name") + "' name='family_name'/></td>" + "</tr>";
-        htmlTable += "<input type='hidden' name='eventID' value='" + userResult.getInt("user_id") + "' />";
+        htmlTable += "<input type='hidden' name='userID' value='" + userResult.getInt("user_id") + "' />";
         htmlTable += "<input type='hidden' name='formAction' id='formAction' value='UPDATE'/>";
         htmlTable += "<tr><td><button id='update' type='submit' style='margin-top: 10px;' onclick='form_update()'>Update</button></td></tr></form>";
         htmlTable += "</table>";
@@ -87,5 +89,10 @@ public class AccountServlet extends HttpServlet {
         String content = HomeHtml.getHomeHtml(userName,htmlTable);
         return content;
     }
+
+    public String getConnectionToken(HttpServletRequest req) {
+        return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
+    }
+
 
 }

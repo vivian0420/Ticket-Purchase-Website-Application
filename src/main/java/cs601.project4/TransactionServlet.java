@@ -1,5 +1,7 @@
 package cs601.project4;
 
+import com.google.gson.JsonObject;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
@@ -14,9 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static cs601.project4.Application.CONNECTION_STRING;
-
-public class Transaction extends HttpServlet {
+public class TransactionServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("text/html; charset=utf-8");
@@ -26,7 +26,7 @@ public class Transaction extends HttpServlet {
                 session = cookie.getValue();
             }
         }
-        try(Connection conn = DriverManager.getConnection(CONNECTION_STRING)) {
+        try(Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
             PreparedStatement userQuery = conn.prepareStatement("SELECT u.name, u.user_id FROM User u, User_session s WHERE session=? AND u.user_id=s.user_id and s.active = 1 and expiration > current_timestamp()");
             userQuery.setString(1, session);
             ResultSet userSet = userQuery.executeQuery();
@@ -51,7 +51,7 @@ public class Transaction extends HttpServlet {
         resp.setContentType("text/html; charset=utf-8");
         String transferEmail = req.getParameter("email");
         int ticketId = Integer.parseInt(req.getParameter("ticketID"));
-        try(Connection conn = DriverManager.getConnection(CONNECTION_STRING)) {
+        try(Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
             PreparedStatement transferIdQuery = conn.prepareStatement("SELECT user_id FROM User WHERE email=?");
             transferIdQuery.setString(1,transferEmail);
             ResultSet transferIdResult = transferIdQuery.executeQuery();
@@ -106,5 +106,8 @@ public class Transaction extends HttpServlet {
         htmlTable += "</table>";
 
         return htmlTable;
+    }
+    public String getConnectionToken(HttpServletRequest req) {
+        return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
     }
 }

@@ -1,5 +1,7 @@
 package cs601.project4;
 
+import com.google.gson.JsonObject;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
@@ -13,8 +15,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
-import static cs601.project4.Application.CONNECTION_STRING;
-
 public class BuyTicketServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -26,7 +26,7 @@ public class BuyTicketServlet extends HttpServlet {
             }
         }
 
-        try (Connection conn = DriverManager.getConnection(CONNECTION_STRING)) {
+        try (Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
 
             PreparedStatement userQuery = conn.prepareStatement("SELECT u.name FROM User u, User_session s WHERE session=? AND u.user_id=s.user_id and s.active = 1 and expiration > current_timestamp()");
             userQuery.setString(1, session);
@@ -53,7 +53,7 @@ public class BuyTicketServlet extends HttpServlet {
                 session = cookie.getValue();
             }
         }
-        try (Connection conn = DriverManager.getConnection(CONNECTION_STRING)) {
+        try (Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
             PreparedStatement userQuery = conn.prepareStatement("SELECT user_id FROM User_session WHERE session=?");
             userQuery.setString(1, session);
             ResultSet userSet = userQuery.executeQuery();
@@ -114,5 +114,9 @@ public class BuyTicketServlet extends HttpServlet {
         htmlTable += "<td><image  width='450px' src='/images?image_name=" + eventSet.getString("image_name") +"'/></td>";
         htmlTable += "</tr></table>";
         return htmlTable;
+    }
+
+    public String getConnectionToken(HttpServletRequest req) {
+        return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
     }
 }

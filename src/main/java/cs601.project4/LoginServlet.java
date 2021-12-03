@@ -27,8 +27,6 @@ public class LoginServlet extends HttpServlet {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoginServlet.class);
 
-   final static String CONNECTION_STRING = "jdbc:mysql://localhost:3306/project4?user=root&password=2281997163";
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setStatus(HttpStatus.OK_200);
@@ -63,7 +61,7 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        try(Connection conn = DriverManager.getConnection(CONNECTION_STRING)) {
+        try(Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
             PreparedStatement providerQuery = conn.prepareStatement("select idp_id from identity_providers where name = 'Google'");
             final ResultSet providerRS = providerQuery.executeQuery();
             providerRS.next();
@@ -100,7 +98,9 @@ public class LoginServlet extends HttpServlet {
             throwables.printStackTrace();
 
         }
+    }
 
-
+    public String getConnectionToken(HttpServletRequest req) {
+        return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
     }
 }

@@ -181,10 +181,6 @@ public class HomeHtml {
                         }
                       }
                       
-                    function set_timezone() {
-                       $("#timezone").val(Intl.DateTimeFormat().resolvedOptions().timeZone);
-                    }
-                    
                     function form_update() {
                         $("#formAction").val('UPDATE');
                         $("#timezone").val(Intl.DateTimeFormat().resolvedOptions().timeZone);
@@ -217,7 +213,6 @@ public class HomeHtml {
                      <div id="myModal" class="modal">
                        <!-- Modal content -->
                        <div class="modal-content">
-                          <input type="hidden" name="timezone" id="timezone" />
                           
                           <span class="close" data-dismiss="modal" onclick="close_create_event()">&times;</span>
                           <label id="name" for="eventName"><b>Name:</b></label>
@@ -256,7 +251,7 @@ public class HomeHtml {
                           <label for="image"><b>Image:</b></label>
                           <input id="image" type="file" name="image" accept="image/*" />
                    
-                          <button id="confirm" type="submit" onclick="set_timezone()">Confirm</button>
+                          <button id="confirm" type="submit">Confirm</button>
                      </div>
                     </div>
                    </div>

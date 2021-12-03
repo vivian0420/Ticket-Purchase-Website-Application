@@ -1,6 +1,6 @@
 package cs601.project4;
 
-import org.eclipse.jetty.http.HttpStatus;
+import com.google.gson.JsonObject;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -15,7 +15,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class HomeServlet extends HttpServlet {
-    final static String CONNECTION_STRING = "jdbc:mysql://localhost:3306/project4?user=root&password=2281997163";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -25,7 +24,7 @@ public class HomeServlet extends HttpServlet {
                 session = cookie.getValue();
             }
         }
-        try(Connection conn = DriverManager.getConnection(CONNECTION_STRING)) {
+        try(Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
             PreparedStatement userQuery = conn.prepareStatement("SELECT name FROM User u, User_session s WHERE session=? AND u.user_id=s.user_id and s.active = 1 and expiration > current_timestamp()");
             userQuery.setString(1, session);
             ResultSet userSet = userQuery.executeQuery();
@@ -54,6 +53,9 @@ public class HomeServlet extends HttpServlet {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+    }
 
+    public String getConnectionToken(HttpServletRequest req) {
+        return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
     }
 }

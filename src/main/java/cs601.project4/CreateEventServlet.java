@@ -9,7 +9,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
@@ -22,13 +21,12 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 import java.util.UUID;
 
 public class CreateEventServlet extends HttpServlet {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateEventServlet.class);
-    final static String CONNECTION_STRING = "jdbc:mysql://localhost:3306/project4?user=root&password=2281997163";
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
@@ -49,7 +47,7 @@ public class CreateEventServlet extends HttpServlet {
                 session = cookie.getValue();
             }
         }
-        try(Connection conn = DriverManager.getConnection(CONNECTION_STRING)) {
+        try(Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
             PreparedStatement userQuery = conn.prepareStatement("SELECT user_id FROM User_session WHERE session=? ");
             userQuery.setString(1,session);
             ResultSet idResult = userQuery.executeQuery();
@@ -57,7 +55,6 @@ public class CreateEventServlet extends HttpServlet {
             int userId = idResult.getInt("user_id");
 
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
-            df.setTimeZone(TimeZone.getTimeZone(req.getParameter("timezone")));
             final Date startTime;
             try {
                 startTime = df.parse(req.getParameter("starttime"));
@@ -96,7 +93,7 @@ public class CreateEventServlet extends HttpServlet {
             if(!userImage.isBlank() && !userImage.isEmpty()) {
                 final String imageName = UUID.randomUUID().toString();
                 insertQuery.setString(13,imageName);
-                try(FileOutputStream image = new FileOutputStream(new File("images/"+imageName))){
+                try(FileOutputStream image = new FileOutputStream("images/"+imageName)){
                     image.write(req.getPart("image").getInputStream().readAllBytes());
                 }
             }
@@ -111,10 +108,9 @@ public class CreateEventServlet extends HttpServlet {
 
         resp.setStatus(302);
         resp.setHeader("location", "/myEvents");
+    }
 
-//        LOGGER.info(req.getParameterMap().toString());
-//        JsonObject json = new JsonObject();
-//        json.addProperty("success", "success");
-//        resp.getWriter().write(json.toString());
+    public String getConnectionToken(HttpServletRequest req) {
+        return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
     }
 }

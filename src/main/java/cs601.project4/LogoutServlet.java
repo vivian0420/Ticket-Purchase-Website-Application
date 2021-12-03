@@ -1,5 +1,7 @@
 package cs601.project4;
 
+import com.google.gson.JsonObject;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
@@ -11,8 +13,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import static cs601.project4.Application.CONNECTION_STRING;
-
 public class LogoutServlet extends HttpServlet {
 
     @Override
@@ -23,7 +23,7 @@ public class LogoutServlet extends HttpServlet {
                 session = cookie.getValue();
             }
         }
-        try (Connection conn = DriverManager.getConnection(CONNECTION_STRING)){
+        try (Connection conn = DriverManager.getConnection(getConnectionToken(req))){
             PreparedStatement updateActive = conn.prepareStatement("UPDATE User_session SET active=0 WHERE session=?");
             updateActive.setString(1,session);
             updateActive.executeUpdate();
@@ -34,7 +34,8 @@ public class LogoutServlet extends HttpServlet {
             throwables.printStackTrace();
         }
     }
-
-
+    public String getConnectionToken(HttpServletRequest req) {
+        return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
+    }
 
 }

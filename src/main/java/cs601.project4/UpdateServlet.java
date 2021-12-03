@@ -1,7 +1,6 @@
 package cs601.project4;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.gson.JsonObject;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -21,13 +20,9 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 import java.util.UUID;
 
-import static cs601.project4.Application.CONNECTION_STRING;
-
 public class UpdateServlet extends HttpServlet {
-    private static final Logger LOGGER = LoggerFactory.getLogger(UpdateServlet.class);
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -38,7 +33,7 @@ public class UpdateServlet extends HttpServlet {
                 session = cookie.getValue();
             }
         }
-        try (Connection conn = DriverManager.getConnection(CONNECTION_STRING)){
+        try (Connection conn = DriverManager.getConnection(getConnectionToken(req))){
             PreparedStatement userQuery = conn.prepareStatement("SELECT u.name FROM User_session s, User u WHERE u.user_id = s.user_id and s.session=? and s.active = 1 and expiration > current_timestamp()");
             userQuery.setString(1, session);
             ResultSet userSet = userQuery.executeQuery();
@@ -59,15 +54,13 @@ public class UpdateServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try (Connection conn = DriverManager.getConnection(CONNECTION_STRING)) {
-            LOGGER.info(req.getParameterMap().toString());
+        try (Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
             if (req.getParameter("formAction").equals("UPDATE")) {
                 int event_id = Integer.parseInt(req.getParameter("eventID"));
                 String eventname = req.getParameter("eventname");
                 int capacity = Integer.parseInt(req.getParameter("capacity"));
                 double price = Double.parseDouble(req.getParameter("price"));
                 DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
-                df.setTimeZone(TimeZone.getTimeZone(req.getParameter("timezone")));
                 final Date startTime;
                 try {
                     startTime = df.parse(req.getParameter("start_time"));
@@ -177,5 +170,9 @@ public class UpdateServlet extends HttpServlet {
 
         String content = HomeHtml.getHomeHtml(userName, htmlItem);
         return content;
+    }
+
+    public String getConnectionToken(HttpServletRequest req) {
+        return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
     }
 }
