@@ -33,6 +33,7 @@ public class HomeHtml {
                    
                     body {
                       margin: 20;
+                      overflow:auto;
                     }
                     .header {
                       background-color: #B0E0E6;
@@ -138,7 +139,7 @@ public class HomeHtml {
                       width: 85%%;
                       margin-top: 10px;
                       margin-bottom: 10px;
-                      height: 400px;
+                      height: 500px;
                       overflow: scroll;
                     }
                     
