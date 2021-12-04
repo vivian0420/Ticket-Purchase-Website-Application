@@ -13,10 +13,21 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+/**
+ * LogoutServlet. Allow users to log out and redirect users to the login page.
+ */
 public class LogoutServlet extends HttpServlet {
 
+    /**
+     * When user click "Sign out" button, set the user's active as 0 and redirect the user to the login page.
+     *
+     * @param req  Http request
+     * @param resp Http response
+     * @throws ServletException exception that a servlet can throw when it encounters difficulty
+     * @throws IOException  exceptions produced by failed or interrupted I/O operations.
+     */
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String session = "";
         for(Cookie cookie: req.getCookies()) {
             if(cookie.getName().equals("session")) {
@@ -34,6 +45,11 @@ public class LogoutServlet extends HttpServlet {
             throwables.printStackTrace();
         }
     }
+
+    /**
+     * @param req http request
+     * @return a connection string(url) that allows the application to connect to the database
+     */
     public String getConnectionToken(HttpServletRequest req) {
         return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
     }

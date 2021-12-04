@@ -1,8 +1,6 @@
 package cs601.project4;
 
 import com.google.gson.JsonObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -23,10 +21,20 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
+/**
+ * CreateEventServlet.Allows users to create new events and insert the information of the new events into the database.
+ */
 public class CreateEventServlet extends HttpServlet {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CreateEventServlet.class);
-
+    /**
+     * Allow users to create new events. When users click "Confirm" button, read the information of the event from http request and update it to the Events table(DB).
+     * After finishing insertion, redirect the user to the myEvents page.
+     *
+     * @param req Http request
+     * @param resp Http response
+     * @throws ServletException exception that a servlet can throw when it encounters difficulty
+     * @throws IOException  exceptions produced by failed or interrupted I/O operations.
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
@@ -110,6 +118,10 @@ public class CreateEventServlet extends HttpServlet {
         resp.setHeader("location", "/myEvents");
     }
 
+    /**
+     * @param req http request
+     * @return a connection string(url) that allows the application to connect to the database
+     */
     public String getConnectionToken(HttpServletRequest req) {
         return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
     }

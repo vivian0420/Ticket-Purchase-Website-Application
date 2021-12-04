@@ -14,8 +14,20 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * HomeServlet. Display the home page(a bunch of links and three of the most popular events.
+ */
 public class HomeServlet extends HttpServlet {
 
+    /**
+     * Check user session and active to see if the user has been login or not. if not, force the user to the
+     * login page. Otherwise, display the home page.
+     *
+     * @param req  Http request
+     * @param resp Http response
+     * @throws ServletException exception that a servlet can throw when it encounters difficulty
+     * @throws IOException  exceptions produced by failed or interrupted I/O operations.
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String session = "";
@@ -55,6 +67,10 @@ public class HomeServlet extends HttpServlet {
         }
     }
 
+    /**
+     * @param req http request
+     * @return a connection string(url) that allows the application to connect to the database
+     */
     public String getConnectionToken(HttpServletRequest req) {
         return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
     }

@@ -155,7 +155,7 @@ public class HomeHtml {
                    
                    <div class="topnav">
                     <text>Welcome %s  </text>
-                    <a href="/logout" onclick="signOut();">Sign out</a>
+                    <form action="/logout" method="post" onsubmit="signOut()"><input type="submit" value="Sign out"/></form>
                     
                    </div>
                    

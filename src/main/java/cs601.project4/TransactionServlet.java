@@ -16,7 +16,21 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * TransactionServlet. Display all the tickets that the current user has and allow the user to transfer tickets to other
+ * users.
+ */
 public class TransactionServlet extends HttpServlet {
+
+    /**
+     * Display all the tickets that the current user has.Check user session and active to see if the user has been login or not,
+     * if not, force the user to the login page. Otherwise, display all the tickets that the current user owns.
+     *
+     * @param req Http request
+     * @param resp Http response
+     * @throws ServletException exception that a servlet can throw when it encounters difficulty
+     * @throws IOException  exceptions produced by failed or interrupted I/O operations.
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("text/html; charset=utf-8");
@@ -46,6 +60,15 @@ public class TransactionServlet extends HttpServlet {
 
     }
 
+    /**
+     * Allow the current user to transfer some tickets that he/she owns to other users. When a ticket is transferred, update
+     * the ticket's userid as the email corresponding userid.
+     *
+     * @param req  Http request
+     * @param resp Http response
+     * @throws ServletException exception that a servlet can throw when it encounters difficulty
+     * @throws IOException  exceptions produced by failed or interrupted I/O operations.
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("text/html; charset=utf-8");
@@ -70,13 +93,22 @@ public class TransactionServlet extends HttpServlet {
             resp.setStatus(302);
             resp.setHeader("location", "/transaction");
 
-
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
 
     }
 
+    /**
+     * Get content method. When the current user click the specific event's name, diaplay the ticket/event information
+     * to the user.
+     *
+     * @param id the current user's id
+     * @param req http req
+     * @param conn a connection to the given database URL.
+     * @return the content that will be shown on the UI page.
+     * @throws SQLException An exception that provides information on a database access error or other errors.
+     */
     private String getContent(int id, HttpServletRequest req, Connection conn) throws SQLException {
         PreparedStatement ticketQuery = conn.prepareStatement("SELECT e.event_id, e.eventname, e.start_time, e.end_time, t.price, " +
                 " t.ticket_id, t.ticket_code FROM Events e, ticket t WHERE t.user_id=? AND e.event_id=t.event_id");
@@ -104,9 +136,13 @@ public class TransactionServlet extends HttpServlet {
             htmlTable += "<td><input id='transfer' type='submit' value='Transfer'></td></tr></form>";
         }
         htmlTable += "</table>";
-
         return htmlTable;
     }
+
+    /**
+     * @param req http request
+     * @return a connection string(url) that allows the application to connect to the database
+     */
     public String getConnectionToken(HttpServletRequest req) {
         return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
     }

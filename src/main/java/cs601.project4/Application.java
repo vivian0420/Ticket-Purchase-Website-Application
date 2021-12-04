@@ -18,6 +18,11 @@ public class Application {
             e.printStackTrace();
         }
     }
+
+    /**
+     *
+     * @throws Exception
+     */
     public static void startup() throws Exception {
         Gson gson = new Gson();
         JsonObject config = gson.fromJson(new FileReader("config.json"), JsonObject.class);

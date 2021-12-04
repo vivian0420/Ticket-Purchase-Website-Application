@@ -15,7 +15,21 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
+/**
+ * BuyTicketServlet, displays information of a specific event, allows users to buy ticket and store the tickets information
+ * into the database.
+ */
 public class BuyTicketServlet extends HttpServlet {
+
+    /**
+     * Check user session and active to see if the user has been login or not. if not, force the user to the
+     * login page. Otherwise, display the information of a specific event.
+     *
+     * @param req  Http request
+     * @param resp Http response
+     * @throws ServletException exception that a servlet can throw when it encounters difficulty
+     * @throws IOException  exceptions produced by failed or interrupted I/O operations.
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         int eventId = Integer.parseInt(req.getParameter("event_id"));
@@ -45,6 +59,15 @@ public class BuyTicketServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Allow users to buy tickets. When users click "Confirm" button, read the ticket's information from http request and update it to the ticket table(DB).
+     * After finishing insertion, redirect the user to the all events page.
+     *
+     * @param req Http request
+     * @param resp Http response
+     * @throws ServletException exception that a servlet can throw when it encounters difficulty
+     * @throws IOException  exceptions produced by failed or interrupted I/O operations.
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String session = "";
@@ -83,6 +106,14 @@ public class BuyTicketServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Get content method, which select the information of all events from database and return a table of events' information that
+     * will be displayed on the UI page. And also contains a "Purchase" button allows users to buy tickets.
+     * @param id the current user's id
+     * @param conn a connection to the given database URL.
+     * @return the content that will be shown on the UI page.
+     * @throws SQLException An exception that provides information on a database access error or other errors.
+     */
     private String getContent(int id, Connection conn) throws SQLException {
         PreparedStatement eventQuery = conn.prepareStatement("SELECT event_id, eventname, capacity, start_time, end_time," +
                 " price, concat(address1, ' ',  address2, ' ', city, ' ', state, ' ', zipcode) as address, description,image_name FROM Events WHERE event_id=?");
@@ -116,6 +147,10 @@ public class BuyTicketServlet extends HttpServlet {
         return htmlTable;
     }
 
+    /**
+     * @param req http request
+     * @return a connection string(url) that allows the application to connect to the database
+     */
     public String getConnectionToken(HttpServletRequest req) {
         return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
     }

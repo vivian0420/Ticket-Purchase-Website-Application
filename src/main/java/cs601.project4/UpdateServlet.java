@@ -22,8 +22,20 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
+/**
+ * UpdateServlet.Allow the user to check the details of a specific event and allow a user to modify or delete an
+ * event that s/he has created.
+ */
 public class UpdateServlet extends HttpServlet {
 
+    /**
+     * When the user clicks the name of the event, display the specify event information to the user.
+     *
+     * @param req Http request
+     * @param resp Http response
+     * @throws ServletException exception that a servlet can throw when it encounters difficulty
+     * @throws IOException  exceptions produced by failed or interrupted I/O operations.
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         int eventID = Integer.parseInt(req.getParameter("eventID"));
@@ -52,6 +64,15 @@ public class UpdateServlet extends HttpServlet {
 
     }
 
+    /**
+     * allow a user to modify or delete an event that s/he has created. Read the information of the specific event from
+     * http request and update the information to the database.
+     *
+     * @param req Http request
+     * @param resp Http response
+     * @throws ServletException exception that a servlet can throw when it encounters difficulty
+     * @throws IOException  exceptions produced by failed or interrupted I/O operations.
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try (Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
@@ -138,7 +159,16 @@ public class UpdateServlet extends HttpServlet {
         }
     }
 
-
+    /**
+     * Get content method, which select the specific event's information from database and display the information of the
+     * event when the users clicks the name of an event.
+     *
+     * @param userName the current user's user name
+     * @param id the current user's id
+     * @param conn a connection to the given database URL.
+     * @return the content that will be shown on the UI page.
+     * @throws SQLException An exception that provides information on a database access error or other errors.
+     */
         private String getContent(String userName, int id, Connection conn) throws SQLException {
         PreparedStatement eventQuery = conn.prepareStatement("SELECT event_id, eventname, capacity, price, start_time," +
                 " end_time, address1, address2, city, state, zipcode, description, image_name FROM Events WHERE event_id=?");
@@ -172,6 +202,10 @@ public class UpdateServlet extends HttpServlet {
         return content;
     }
 
+    /**
+     * @param req http request
+     * @return a connection string(url) that allows the application to connect to the database
+     */
     public String getConnectionToken(HttpServletRequest req) {
         return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
     }

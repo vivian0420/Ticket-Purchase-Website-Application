@@ -22,11 +22,20 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
-
+/**
+ * LoginServlet. Display login page and validate the OAuth token that is returned from google. If the token is valid, allow
+ * user to login and store user's information to the database.
+ */
 public class LoginServlet extends HttpServlet {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoginServlet.class);
-
+    /**
+     * Display login page.
+     *
+     * @param req  Http request
+     * @param resp Http response
+     * @throws ServletException exception that a servlet can throw when it encounters difficulty
+     * @throws IOException  exceptions produced by failed or interrupted I/O operations.
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setStatus(HttpStatus.OK_200);
@@ -34,14 +43,20 @@ public class LoginServlet extends HttpServlet {
         resp.getWriter().println(content);
     }
 
+    /**
+     * Use http client to send the request to google and validate the OAuth token.If the token is valid then redirect
+     * the user to the home page and store the user information to the database.
+     *
+     * @param req  Http request
+     * @param resp Http response
+     * @throws ServletException exception that a servlet can throw when it encounters difficulty
+     * @throws IOException  exceptions produced by failed or interrupted I/O operations.
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         if(!req.getParameterMap().containsKey("google_id_token")) {
             resp.sendError(404, "google_id_token not found.");
         }
-
-
-        LOGGER.info(req.getParameterMap().toString());
 
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest tokenRequest = HttpRequest.newBuilder()
@@ -100,6 +115,10 @@ public class LoginServlet extends HttpServlet {
         }
     }
 
+    /**
+     * @param req http request
+     * @return a connection string(url) that allows the application to connect to the database
+     */
     public String getConnectionToken(HttpServletRequest req) {
         return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
     }

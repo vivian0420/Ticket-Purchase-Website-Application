@@ -14,8 +14,20 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * AccountServlet, handle showing user account and allows users to modify user information
+ */
 public class AccountServlet extends HttpServlet {
 
+    /**
+     * Get user account information. Check user session and active to see if the user has been login or not,
+     * if not, force the user to the login page. Otherwise, display the user information.
+     *
+     * @param req  Http request
+     * @param resp Http response
+     * @throws ServletException exception that a servlet can throw when it encounters difficulty
+     * @throws IOException  exceptions produced by failed or interrupted I/O operations.
+     */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
@@ -46,6 +58,15 @@ public class AccountServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Allow users to modify user information. Read user's information from http request and update it to the user table(DB).
+     * After finishing updating, redirect the user to the user account page.
+     *
+     * @param req Http request
+     * @param resp Http response
+     * @throws ServletException exception that a servlet can throw when it encounters difficulty
+     * @throws IOException  exceptions produced by failed or interrupted I/O operations.
+     */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try (Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
@@ -54,10 +75,10 @@ public class AccountServlet extends HttpServlet {
             String givenName = req.getParameter("given_name");
             String familyName = req.getParameter("family_name");
             PreparedStatement updateUser = conn.prepareStatement("UPDATE User SET name=?, given_name=?, family_name=? WHERE user_id=?");
-            updateUser.setString(1,name);
-            updateUser.setString(2,givenName);
-            updateUser.setString(3,familyName);
-            updateUser.setInt(4,userId);
+            updateUser.setString(1, name);
+            updateUser.setString(2, givenName);
+            updateUser.setString(3, familyName);
+            updateUser.setInt(4, userId);
             updateUser.executeUpdate();
 
             resp.setStatus(302);
@@ -67,8 +88,16 @@ public class AccountServlet extends HttpServlet {
         }
     }
 
-
-
+    /**
+     * Get content method, which select the user's information from database and return a table of user's information that
+     * will be displayed on the UI page when user click "Account" button.
+     *
+     * @param userName the current user's user name
+     * @param id the current user's id
+     * @param conn a connection to the given database URL.
+     * @return the content that will be shown on the UI page.
+     * @throws SQLException An exception that provides information on a database access error or other errors.
+     */
     private String getContent(String userName, int id, Connection conn) throws SQLException {
         PreparedStatement userQuery = conn.prepareStatement("SELECT u.user_id, u.name, u.email, u.given_name, u.family_name " +
                 " FROM User u, User_session s WHERE u.user_id=?");
@@ -86,10 +115,14 @@ public class AccountServlet extends HttpServlet {
         htmlTable += "<tr><td><button id='update' type='submit' style='margin-top: 10px;' onclick='form_update()'>Update</button></td></tr></form>";
         htmlTable += "</table>";
 
-        String content = HomeHtml.getHomeHtml(userName,htmlTable);
+        String content = HomeHtml.getHomeHtml(userName, htmlTable);
         return content;
     }
 
+    /**
+     * @param req http request
+     * @return a connection string(url) that allows the application to connect to the database
+     */
     public String getConnectionToken(HttpServletRequest req) {
         return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
     }
