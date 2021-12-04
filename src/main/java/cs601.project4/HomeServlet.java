@@ -48,7 +48,7 @@ public class HomeServlet extends HttpServlet {
             }
             String userName = userSet.getString("name");
 
-            PreparedStatement pictureQuery = conn.prepareStatement("SELECT sold.event_id, e.image_name, e.eventname FROM events e, (select event_id, count(ticket_id) as sold " +
+            PreparedStatement pictureQuery = conn.prepareStatement("SELECT sold.event_id, e.image_name, e.eventname FROM Events e, (select event_id, count(ticket_id) as sold " +
                     " FROM ticket GROUP by event_id ORDER by count(ticket_id)) sold WHERE e.event_id = sold.event_id ORDER by sold.sold desc limit 3; ");
             ResultSet pictureSet = pictureQuery.executeQuery();
             pictureSet.next();
