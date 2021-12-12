@@ -11,7 +11,7 @@ import java.io.FileReader;
 
 public class Application {
 
-    public static void main(String[] args)throws Exception {
+    public static void main(String[] args) {
         try {
             startup();
         } catch(Exception e) {

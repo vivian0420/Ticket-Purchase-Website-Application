@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -29,9 +30,13 @@ public class LogoutServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String session = "";
-        for(Cookie cookie: req.getCookies()) {
-            if(cookie.getName().equals("session")) {
-                session = cookie.getValue();
+        if (req.getCookies() == null) {
+            session = "invalid";
+        } else {
+            for (Cookie cookie : req.getCookies()) {
+                if (cookie.getName().equals("session")) {
+                    session = cookie.getValue();
+                }
             }
         }
         try (Connection conn = DriverManager.getConnection(getConnectionToken(req))){

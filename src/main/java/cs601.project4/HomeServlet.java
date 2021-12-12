@@ -30,16 +30,9 @@ public class HomeServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String session = "";
-        for(Cookie cookie: req.getCookies()) {
-            if(cookie.getName().equals("session")) {
-                session = cookie.getValue();
-            }
-        }
+
         try(Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
-            PreparedStatement userQuery = conn.prepareStatement("SELECT name FROM User u, User_session s WHERE session=? AND u.user_id=s.user_id and s.active = 1 and expiration > current_timestamp()");
-            userQuery.setString(1, session);
-            ResultSet userSet = userQuery.executeQuery();
+            ResultSet userSet = LoginUtilities.getUserQuerySet(req, conn);
             if(!userSet.next()) {
                 resp.setHeader("location", "/login");
                 resp.setStatus(302);

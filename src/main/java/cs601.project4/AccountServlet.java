@@ -3,7 +3,6 @@ package cs601.project4;
 import com.google.gson.JsonObject;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,18 +30,8 @@ public class AccountServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        String session = "";
-        for (Cookie cookie : req.getCookies()) {
-            if (cookie.getName().equals("session")) {
-                session = cookie.getValue();
-            }
-        }
-
         try (Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
-
-            PreparedStatement userQuery = conn.prepareStatement("SELECT u.name, u.user_id FROM User u, User_session s WHERE session=? AND u.user_id=s.user_id and s.active = 1 and expiration > current_timestamp()");
-            userQuery.setString(1, session);
-            ResultSet userSet = userQuery.executeQuery();
+            ResultSet userSet = LoginUtilities.getUserQuerySet(req, conn);
             if (!userSet.next()) {
                 resp.setHeader("location", "/login");
                 resp.setStatus(302);
@@ -70,7 +59,14 @@ public class AccountServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try (Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
-            int userId = Integer.parseInt(req.getParameter("userID"));
+            ResultSet userSet = LoginUtilities.getUserQuerySet(req, conn);
+            if (!userSet.next()) {
+                resp.setHeader("location", "/login");
+                resp.setStatus(302);
+                resp.getWriter().write("<html>302 Found</html>");
+                return;
+            }
+            int userId = Integer.parseInt(userSet.getString("user_id"));
             String name = req.getParameter("name");
             String givenName = req.getParameter("given_name");
             String familyName = req.getParameter("family_name");
@@ -126,6 +122,5 @@ public class AccountServlet extends HttpServlet {
     public String getConnectionToken(HttpServletRequest req) {
         return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
     }
-
 
 }

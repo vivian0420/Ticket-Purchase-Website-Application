@@ -48,19 +48,15 @@ public class CreateEventServlet extends HttpServlet {
         double price = Double.parseDouble(req.getParameter("price"));
         String description = req.getParameter("description");
 
-
-        String session = "";
-        for(Cookie cookie: req.getCookies()) {
-            if(cookie.getName().equals("session")) {
-                session = cookie.getValue();
-            }
-        }
         try(Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
-            PreparedStatement userQuery = conn.prepareStatement("SELECT user_id FROM User_session WHERE session=? ");
-            userQuery.setString(1,session);
-            ResultSet idResult = userQuery.executeQuery();
-            idResult.next();
-            int userId = idResult.getInt("user_id");
+            ResultSet userSet = LoginUtilities.getUserQuerySet(req, conn);
+            if (!userSet.next()) {
+                resp.setHeader("location", "/login");
+                resp.setStatus(302);
+                resp.getWriter().write("<html>302 Found</html>");
+                return;
+            }
+            int userId = userSet.getInt("user_id");
 
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
             final Date startTime;

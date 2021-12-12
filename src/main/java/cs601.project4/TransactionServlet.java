@@ -34,16 +34,9 @@ public class TransactionServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("text/html; charset=utf-8");
-        String session = "";
-        for(Cookie cookie: req.getCookies()) {
-            if(cookie.getName().equals("session")) {
-                session = cookie.getValue();
-            }
-        }
+
         try(Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
-            PreparedStatement userQuery = conn.prepareStatement("SELECT u.name, u.user_id FROM User u, User_session s WHERE session=? AND u.user_id=s.user_id and s.active = 1 and expiration > current_timestamp()");
-            userQuery.setString(1, session);
-            ResultSet userSet = userQuery.executeQuery();
+            ResultSet userSet = LoginUtilities.getUserQuerySet(req, conn);
             if(!userSet.next()) {
                 resp.setHeader("location", "/login");
                 resp.setStatus(302);
@@ -75,6 +68,13 @@ public class TransactionServlet extends HttpServlet {
         String transferEmail = req.getParameter("email");
         int ticketId = Integer.parseInt(req.getParameter("ticketID"));
         try(Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
+            ResultSet userSet = LoginUtilities.getUserQuerySet(req, conn);
+            if (!userSet.next()) {
+                resp.setHeader("location", "/login");
+                resp.setStatus(302);
+                resp.getWriter().write("<html>302 Found</html>");
+                return;
+            }
             PreparedStatement transferIdQuery = conn.prepareStatement("SELECT user_id FROM User WHERE email=?");
             transferIdQuery.setString(1,transferEmail);
             ResultSet transferIdResult = transferIdQuery.executeQuery();
@@ -123,7 +123,7 @@ public class TransactionServlet extends HttpServlet {
         htmlTable += "<tr style='text-align: center'><td><b>" + "N0." + "</b></td><td><b>" + "Event Name " + "</b></td><td><b>" + "Start time " + "</b></td><td><b>" + "End time " +
                 " </b></td><td><b>" + "Price " + "</b></td><td><b>" + "Ticket code " + "</b></td><td>" + " " + "</td><td>" + "  " + "</td></tr>";
         while (ticketSet.next()) {
-            htmlTable += "<form action='/myTickets' method='post' accept-charset='utf-8' onsubmit='return window.confirm(\"Confirm to transfer?\");'><tr>";
+            htmlTable += "<form action='/transaction' method='post' accept-charset='utf-8' onsubmit='return window.confirm(\"Confirm to transfer?\");'><tr>";
             htmlTable += "<td>" + count++ + "</td>";
             htmlTable += "<td>" + "<a href='/buyTicket?event_id=" + ticketSet.getInt("event_id") +
                     "'\">" + ticketSet.getString("eventName") + "</a></td>";

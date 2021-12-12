@@ -3,6 +3,7 @@ package cs601.project4;
 import com.google.gson.JsonObject;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -11,6 +12,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -27,11 +30,20 @@ public class ImageServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
         if(!req.getParameterMap().containsKey("image_name")) {
             resp.sendError(400, "image_name not in request");
             return;
         }
+
         try(Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
+            ResultSet userSet = LoginUtilities.getUserQuerySet(req, conn);
+            if (!userSet.next()) {
+                resp.setHeader("location", "/login");
+                resp.setStatus(302);
+                resp.getWriter().write("<html>302 Found</html>");
+                return;
+            }
             File image = new File("images/" + req.getParameter("image_name"));
             if(!image.exists() || !image.isFile()) {
                 resp.sendError(404, "Image " + req.getParameter("image_name") + " not found");

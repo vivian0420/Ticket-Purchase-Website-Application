@@ -38,23 +38,17 @@ public class UpdateServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        int eventID = Integer.parseInt(req.getParameter("eventID"));
-        String session = "";
-        for(Cookie cookie: req.getCookies()) {
-            if(cookie.getName().equals("session")) {
-                session = cookie.getValue();
-            }
-        }
+
+
         try (Connection conn = DriverManager.getConnection(getConnectionToken(req))){
-            PreparedStatement userQuery = conn.prepareStatement("SELECT u.name FROM User_session s, User u WHERE u.user_id = s.user_id and s.session=? and s.active = 1 and expiration > current_timestamp()");
-            userQuery.setString(1, session);
-            ResultSet userSet = userQuery.executeQuery();
+            ResultSet userSet = LoginUtilities.getUserQuerySet(req, conn);
             if(!userSet.next()) {
                 resp.setHeader("location", "/login");
                 resp.setStatus(302);
                 resp.getWriter().write("<html>302 Found</html>");
                 return;
             }
+            int eventID = Integer.parseInt(req.getParameter("eventID"));
             String userName = userSet.getString("name");
             String content = getContent(userName, eventID, conn);
             resp.getWriter().write(content);
@@ -76,6 +70,13 @@ public class UpdateServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try (Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
+            ResultSet userSet = LoginUtilities.getUserQuerySet(req, conn);
+            if (!userSet.next()) {
+                resp.setHeader("location", "/login");
+                resp.setStatus(302);
+                resp.getWriter().write("<html>302 Found</html>");
+                return;
+            }
             if (req.getParameter("formAction").equals("UPDATE")) {
                 int event_id = Integer.parseInt(req.getParameter("eventID"));
                 String eventname = req.getParameter("eventname");

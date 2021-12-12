@@ -32,25 +32,18 @@ public class BuyTicketServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        int eventId = Integer.parseInt(req.getParameter("event_id"));
-        String session = "";
-        for (Cookie cookie : req.getCookies()) {
-            if (cookie.getName().equals("session")) {
-                session = cookie.getValue();
-            }
-        }
+
 
         try (Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
 
-            PreparedStatement userQuery = conn.prepareStatement("SELECT u.name FROM User u, User_session s WHERE session=? AND u.user_id=s.user_id and s.active = 1 and expiration > current_timestamp()");
-            userQuery.setString(1, session);
-            ResultSet userSet = userQuery.executeQuery();
+            ResultSet userSet = LoginUtilities.getUserQuerySet(req, conn);
             if (!userSet.next()) {
                 resp.setHeader("location", "/login");
                 resp.setStatus(302);
                 resp.getWriter().write("<html>302 Found</html>");
                 return;
             }
+            int eventId = Integer.parseInt(req.getParameter("event_id"));
             String userName = userSet.getString("name");
             String buyTicket = getContent(eventId, conn);
             resp.getWriter().write(HomeHtml.getHomeHtml(userName,buyTicket));
@@ -70,17 +63,15 @@ public class BuyTicketServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String session = "";
-        for (Cookie cookie : req.getCookies()) {
-            if (cookie.getName().equals("session")) {
-                session = cookie.getValue();
-            }
-        }
+
         try (Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
-            PreparedStatement userQuery = conn.prepareStatement("SELECT user_id FROM User_session WHERE session=?");
-            userQuery.setString(1, session);
-            ResultSet userSet = userQuery.executeQuery();
-            userSet.next();
+            ResultSet userSet = LoginUtilities.getUserQuerySet(req, conn);
+            if (!userSet.next()) {
+                resp.setHeader("location", "/login");
+                resp.setStatus(302);
+                resp.getWriter().write("<html>302 Found</html>");
+                return;
+            }
             int userId = userSet.getInt("user_id");
             int eventId = Integer.parseInt(req.getParameter("eventID"));
             int numberOfTickets = Integer.parseInt(req.getParameter("numberOfTickets"));
