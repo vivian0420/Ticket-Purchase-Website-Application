@@ -12,6 +12,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -130,7 +132,9 @@ public class BuyTicketServlet extends HttpServlet {
         htmlTable += "<tr>" + "<td><b>" + "Number of Tickets: " + "</b></td>" + "<td><input style='margin-left:10px;' type='number' name='numberOfTickets'" +
                 " max=" + (eventSet.getInt("capacity") - soldSet.getInt("sold")) + "></td>" + "</tr>";
         htmlTable += "<input type='hidden' name='eventID' value='" + eventSet.getInt("event_id") + "' />";
-        htmlTable += "<tr><td><input id='confirm' type='submit' style='margin-top: 10px;' value='Confirm'></td></tr></form>";
+        if(eventSet.getTimestamp("end_time").compareTo(new Timestamp(new Date().getTime())) > 0) {
+            htmlTable += "<tr><td><input id='confirm' type='submit' style='margin-top: 10px;' value='Confirm'></td></tr></form>";
+        }
         htmlTable += "</table></td>";
         htmlTable += "<td><image  width='450px' src='/images?image_name=" + eventSet.getString("image_name") +"'/></td>";
         htmlTable += "</tr></table>";
