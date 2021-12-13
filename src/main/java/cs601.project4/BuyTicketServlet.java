@@ -3,7 +3,6 @@ package cs601.project4;
 import com.google.gson.JsonObject;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -119,8 +118,8 @@ public class BuyTicketServlet extends HttpServlet {
 
         String htmlTable = "<h2>Purchase tickets:</h2><table><tr><td><table>";
         htmlTable += "";
-        htmlTable += "<form action='/buyTicket' method='post' accept-charset='utf-8' onsubmit='return window.confirm(\"Confirm your order?\");'><tr>" + "<td><b>" + "Event Name: " + "</b></td>" + "<td>" + eventSet.getString("eventname") + "</td>" +
-                " </tr>";
+        htmlTable += "<form action='/buyTicket' method='post' accept-charset='utf-8' onsubmit='return window.confirm(\"Confirm your order?\");'>";
+        htmlTable += "<tr>" + "<td><b>" + "Event Name: " + "</b></td>" + "<td>" + eventSet.getString("eventname") + "</td></tr>";
         htmlTable += "<tr>" + "<td><b>" + "Start Time: " + "</b></td>" + "<td>" + eventSet.getString("start_time") + "</td>" + "</tr>";
         htmlTable += "<tr>" + "<td><b>" + "End Time: " + "</b></td>" + "<td>" + eventSet.getString("end_time") + "</td>" + "</tr>";
         htmlTable += "<tr>" + "<td><b>" + "Capacity: " + "</b></td>" + "<td>" + eventSet.getInt("capacity") + "</td>" + "</tr>";

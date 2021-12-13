@@ -3,7 +3,6 @@ package cs601.project4;
 import com.google.gson.JsonObject;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,7 +11,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -51,7 +49,7 @@ public class ImageServlet extends HttpServlet {
             }
             final byte[] bytes = new FileInputStream(image).readAllBytes();
             resp.setHeader("Content-Type: ", "image");
-            resp.setHeader("Content-Lengrh", String.valueOf(bytes.length));
+            resp.setHeader("Content-Length", String.valueOf(bytes.length));
             resp.getOutputStream().write(bytes);
         } catch (SQLException throwables) {
             throwables.printStackTrace();

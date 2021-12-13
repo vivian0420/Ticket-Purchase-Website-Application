@@ -3,7 +3,6 @@ package cs601.project4;
 import com.google.gson.JsonObject;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,7 +41,7 @@ public class HomeServlet extends HttpServlet {
             String userName = userSet.getString("name");
 
             PreparedStatement pictureQuery = conn.prepareStatement("SELECT sold.event_id, e.image_name, e.eventname FROM Events e, (select event_id, count(ticket_id) as sold " +
-                    " FROM ticket GROUP by event_id ORDER by count(ticket_id)) sold WHERE e.event_id = sold.event_id ORDER by sold.sold desc limit 3; ");
+                    " FROM ticket GROUP by event_id ORDER by count(ticket_id)) sold WHERE e.end_time >= current_timestamp() AND e.event_id = sold.event_id ORDER by sold.sold desc limit 3; ");
             ResultSet pictureSet = pictureQuery.executeQuery();
             pictureSet.next();
             String picture1 = pictureSet.getString("image_name");

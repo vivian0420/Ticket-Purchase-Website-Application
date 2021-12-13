@@ -3,7 +3,6 @@ package cs601.project4;
 import com.google.gson.JsonObject;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,6 +18,7 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -176,10 +176,15 @@ public class UpdateServlet extends HttpServlet {
         eventQuery.setInt(1,id);
         ResultSet eventResultSet = eventQuery.executeQuery();
         eventResultSet.next();
+        PreparedStatement countSoldQuery = conn.prepareStatement("SELECT count(1) as sold FROM ticket WHERE event_id=?");
+        countSoldQuery.setInt(1, id);
+        ResultSet soldSet = countSoldQuery.executeQuery();
+        soldSet.next();
         final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         String htmlItem = "<table><tr><td><table>";
         htmlItem += "<form action='/update' method='post' enctype='multipart/form-data' accept-charset='utf-8'><tr>" + "<td>" + "Name: " + "</td>" + "<td><input type='text' value='" + eventResultSet.getString("eventname") + "' name='eventname'/></td>" + "</tr>";
         htmlItem += "<tr>" + "<td>" + "Capacity: " + "</td>" + "<td><input type='text' value='" + eventResultSet.getString("capacity") + "' name='capacity'/></td>" + "</tr>";
+        htmlItem += "<tr>" + "<td>" + "Sold: " + "</td>" + "<td><input type='text' readonly='readonly' value='" + soldSet.getString("sold") + "' name='sold'/></td>" + "</tr>";
         htmlItem += "<tr>" + "<td>" + "Price: " + "</td>" + "<td><input type='text' value='" + eventResultSet.getDouble("price") + "' name='price'/></td>" + "</tr>";
         htmlItem += "<tr>" + "<td>" + "Start_time: " + "</td>" + "<td><input type='datetime-local' value='" + df.format(eventResultSet.getTimestamp("start_time")) + "' name='start_time'/></td>" + "</tr>";
         htmlItem += "<tr>" + "<td>" + "End_time: " + "</td>" + "<td><input type='datetime-local' value='" + df.format(eventResultSet.getTimestamp("end_time")) + "' name='end_time'/></td>" + "</tr>";
@@ -193,8 +198,9 @@ public class UpdateServlet extends HttpServlet {
         htmlItem += "<tr></tr>";
         htmlItem += "<input type='hidden' name='eventID' value='" + eventResultSet.getInt("event_id") + "' />";
         htmlItem += "<input type='hidden' name='formAction' id='formAction' value='UPDATE'/>";
-        htmlItem += "<input type='hidden' name='timezone' id='timezone' />";
-        htmlItem += "<tr><td><button id='update' type='submit' onclick='form_update()'>Update</button></td>";
+        if(eventResultSet.getTimestamp("end_time").compareTo(new Timestamp(new Date().getTime())) > 0) {
+            htmlItem += "<tr><td><button id='update' type='submit' onclick='form_update()'>Update</button></td>";
+        }
         htmlItem += "<td><button id='delete' type='submit' onclick='form_delete()'>Delete</button></td></tr></form>";
         htmlItem += "</table></td><td><image  width='450px' src='/images?image_name=" + eventResultSet.getString("image_name") + "'/></td>";
         htmlItem += "</table>";

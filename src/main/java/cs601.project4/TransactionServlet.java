@@ -3,7 +3,6 @@ package cs601.project4;
 import com.google.gson.JsonObject;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -115,7 +114,7 @@ public class TransactionServlet extends HttpServlet {
         ticketQuery.setInt(1,id);
         ResultSet ticketSet = ticketQuery.executeQuery();
         int count = 1;
-        String htmlTable = "<table  style='border-spacing: 13px;'>";
+        String htmlTable = "<table  style='border-spacing: 10px;'>";
         htmlTable += "<h2>My Transaction:</h2>";
         if (req.getParameter("error") != null) {
             htmlTable += "<p style='background-color:tomato;'>" + req.getParameter("error") + "</p>";
@@ -123,14 +122,14 @@ public class TransactionServlet extends HttpServlet {
         htmlTable += "<tr style='text-align: center'><td><b>" + "N0." + "</b></td><td><b>" + "Event Name " + "</b></td><td><b>" + "Start time " + "</b></td><td><b>" + "End time " +
                 " </b></td><td><b>" + "Price " + "</b></td><td><b>" + "Ticket code " + "</b></td><td>" + " " + "</td><td>" + "  " + "</td></tr>";
         while (ticketSet.next()) {
-            htmlTable += "<form action='/transaction' method='post' accept-charset='utf-8' onsubmit='return window.confirm(\"Confirm to transfer?\");'><tr>";
+            htmlTable += "<form  action='/transaction' method='post' accept-charset='utf-8' onsubmit='return window.confirm(\"Confirm to transfer?\");'><tr>";
             htmlTable += "<td>" + count++ + "</td>";
-            htmlTable += "<td>" + "<a href='/buyTicket?event_id=" + ticketSet.getInt("event_id") +
+            htmlTable += "<td style='text-align: center'>" + "<a href='/buyTicket?event_id=" + ticketSet.getInt("event_id") +
                     "'\">" + ticketSet.getString("eventName") + "</a></td>";
-            htmlTable += "<td>" + ticketSet.getTimestamp("start_time") + "</td>";
-            htmlTable += "<td>" + ticketSet.getTimestamp("end_time") + "</td>";
-            htmlTable += "<td>" + ticketSet.getDouble("price") + "</td>";
-            htmlTable += "<td>" + ticketSet.getString("ticket_code") + "</td>";
+            htmlTable += "<td style='text-align: center'>" + ticketSet.getTimestamp("start_time") + "</td>";
+            htmlTable += "<td style='text-align: center'>" + ticketSet.getTimestamp("end_time") + "</td>";
+            htmlTable += "<td style='text-align: center'>" + ticketSet.getDouble("price") + "</td>";
+            htmlTable += "<td style='text-align: center'>" + ticketSet.getString("ticket_code") + "</td>";
             htmlTable += "<td>" + "<input style='width: 200px;' id='email' type='text' placeholder='Enter email address to transfer' name='email'>" + "</td>";
             htmlTable += "<td><input type='hidden' name='ticketID' value='" + ticketSet.getInt("ticket_id") + "' /></td>";
             htmlTable += "<td><input id='transfer' type='submit' value='Transfer'></td></tr></form>";

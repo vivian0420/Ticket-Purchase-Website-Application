@@ -145,7 +145,6 @@ public class HomeHtml {
                     
                    </style>
                    
-                   
                  </head>
                  <body>
                    <div class="header">
@@ -183,17 +182,14 @@ public class HomeHtml {
                       
                     function form_update() {
                         $("#formAction").val('UPDATE');
-                        $("#timezone").val(Intl.DateTimeFormat().resolvedOptions().timeZone);
+                       
                       }
                       function form_delete() {
                         $("#formAction").val('DELETE');
-                        $("#timezone").val(Intl.DateTimeFormat().resolvedOptions().timeZone);
+                        
                       }
                     
-                    function purchase() {
-                        alert('data: ' + data["success"]);
-                        window.location.href = "/buyTicket";
-                    }
+                    
                     
                     
                  </script>

@@ -107,8 +107,7 @@ public class AccountServlet extends HttpServlet {
         htmlTable += "<tr>" + "<td><b>" + "Given_name: " + "</b></td>" + "<td><input style='margin-left:10px;' type='text' value='" + userResult.getString("given_name") + "' name='given_name'/></td>" + "</tr>";
         htmlTable += "<tr>" + "<td><b>" + "Family_name: " + "</b></td>" + "<td><input style='margin-left:10px;' type='text' value='" + userResult.getString("family_name") + "' name='family_name'/></td>" + "</tr>";
         htmlTable += "<input type='hidden' name='userID' value='" + userResult.getInt("user_id") + "' />";
-        htmlTable += "<input type='hidden' name='formAction' id='formAction' value='UPDATE'/>";
-        htmlTable += "<tr><td><button id='update' type='submit' style='margin-top: 10px;' onclick='form_update()'>Update</button></td></tr></form>";
+        htmlTable += "<tr><td><button id='update' type='submit' style='margin-top: 10px;' >Update</button></td></tr></form>";
         htmlTable += "</table>";
 
         String content = HomeHtml.getHomeHtml(userName, htmlTable);

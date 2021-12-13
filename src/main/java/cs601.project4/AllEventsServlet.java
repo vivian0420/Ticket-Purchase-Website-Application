@@ -3,7 +3,6 @@ package cs601.project4;
 import com.google.gson.JsonObject;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -60,7 +59,7 @@ public class AllEventsServlet extends HttpServlet {
     private String getContent(int id, Connection conn) throws SQLException {
 
         PreparedStatement eventsQuery = conn.prepareStatement("SELECT event_id, eventname, capacity, start_time, end_time," +
-                " price, concat(address1, ' ',  address2, ' ', city, ' ', state, ' ', zipcode) as address, description FROM Events");
+                " price, concat(address1, ' ',  address2, ' ', city, ' ', state, ' ', zipcode) as address, description FROM Events WHERE end_time >= current_timestamp()");
         ResultSet eventSet = eventsQuery.executeQuery();
         int count = 1;
         String htmlTable = "<table  border='1' cellspacing='0' cellpadding='0'>";
