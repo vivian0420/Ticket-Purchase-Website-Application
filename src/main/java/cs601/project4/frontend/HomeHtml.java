@@ -1,4 +1,4 @@
-package cs601.project4;
+package cs601.project4.frontend;
 
 public class HomeHtml {
     public static String getHomeHtml(String user,String columnRight) {

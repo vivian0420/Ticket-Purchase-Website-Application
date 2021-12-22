@@ -1,7 +1,9 @@
-package cs601.project4;
+package cs601.project4.backend;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import cs601.project4.database.DBCPDataSource;
+import cs601.project4.frontend.LoginPageHtml;
 import org.eclipse.jetty.http.HttpStatus;
 
 import javax.servlet.ServletException;
@@ -14,7 +16,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;

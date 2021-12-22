@@ -1,6 +1,7 @@
-package cs601.project4;
+package cs601.project4.backend;
 
-import com.google.gson.JsonObject;
+import cs601.project4.database.DBCPDataSource;
+import cs601.project4.frontend.HomeHtml;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -10,7 +11,6 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;

@@ -1,4 +1,4 @@
-package cs601.project4;
+package cs601.project4.backend;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;

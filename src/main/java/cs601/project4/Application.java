@@ -2,6 +2,17 @@ package cs601.project4;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import cs601.project4.backend.AccountServlet;
+import cs601.project4.backend.AllEventsServlet;
+import cs601.project4.backend.BuyTicketServlet;
+import cs601.project4.backend.CreateEventServlet;
+import cs601.project4.backend.HomeServlet;
+import cs601.project4.backend.ImageServlet;
+import cs601.project4.backend.LoginServlet;
+import cs601.project4.backend.LogoutServlet;
+import cs601.project4.backend.MyEventsServlet;
+import cs601.project4.backend.TransactionServlet;
+import cs601.project4.backend.UpdateServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 

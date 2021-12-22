@@ -1,4 +1,4 @@
-package cs601.project4;
+package cs601.project4.frontend;
 
 public class MainPageHtml {
     public static String getMainPageHtml(String id1,String picture1,String id2,String picture2,String id3,String picture3) {
