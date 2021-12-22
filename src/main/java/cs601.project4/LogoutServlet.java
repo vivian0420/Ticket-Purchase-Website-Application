@@ -38,7 +38,7 @@ public class LogoutServlet extends HttpServlet {
                 }
             }
         }
-        try (Connection conn = DriverManager.getConnection(getConnectionToken(req))){
+        try (Connection conn = DBCPDataSource.getConnection()){
             PreparedStatement updateActive = conn.prepareStatement("UPDATE User_session SET active=0 WHERE session=?");
             updateActive.setString(1,session);
             updateActive.executeUpdate();
@@ -49,13 +49,4 @@ public class LogoutServlet extends HttpServlet {
             throwables.printStackTrace();
         }
     }
-
-    /**
-     * @param req http request
-     * @return a connection string(url) that allows the application to connect to the database
-     */
-    public String getConnectionToken(HttpServletRequest req) {
-        return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
-    }
-
 }

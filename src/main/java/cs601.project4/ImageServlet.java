@@ -34,7 +34,7 @@ public class ImageServlet extends HttpServlet {
             return;
         }
 
-        try(Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
+        try(Connection conn = DBCPDataSource.getConnection()) {
             ResultSet userSet = LoginUtilities.getUserQuerySet(req, conn);
             if (!userSet.next()) {
                 resp.setHeader("location", "/login");
@@ -54,13 +54,5 @@ public class ImageServlet extends HttpServlet {
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-    }
-
-    /**
-     * @param req http request
-     * @return a connection string(url) that allows the application to connect to the database
-     */
-    public String getConnectionToken(HttpServletRequest req) {
-        return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
     }
 }

@@ -1,7 +1,5 @@
 package cs601.project4;
 
-import com.google.gson.JsonObject;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -10,7 +8,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,7 +15,6 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -40,7 +36,7 @@ public class UpdateServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
 
-        try (Connection conn = DriverManager.getConnection(getConnectionToken(req))){
+        try (Connection conn = DBCPDataSource.getConnection()){
             ResultSet userSet = LoginUtilities.getUserQuerySet(req, conn);
             if(!userSet.next()) {
                 resp.setHeader("location", "/login");
@@ -69,7 +65,7 @@ public class UpdateServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try (Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
+        try (Connection conn = DBCPDataSource.getConnection()) {
             ResultSet userSet = LoginUtilities.getUserQuerySet(req, conn);
             if (!userSet.next()) {
                 resp.setHeader("location", "/login");
@@ -207,13 +203,5 @@ public class UpdateServlet extends HttpServlet {
 
         String content = HomeHtml.getHomeHtml(userName, htmlItem);
         return content;
-    }
-
-    /**
-     * @param req http request
-     * @return a connection string(url) that allows the application to connect to the database
-     */
-    public String getConnectionToken(HttpServletRequest req) {
-        return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
     }
 }

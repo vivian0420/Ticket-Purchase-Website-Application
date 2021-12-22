@@ -34,7 +34,7 @@ public class TransactionServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("text/html; charset=utf-8");
 
-        try(Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
+        try(Connection conn = DBCPDataSource.getConnection()) {
             ResultSet userSet = LoginUtilities.getUserQuerySet(req, conn);
             if(!userSet.next()) {
                 resp.setHeader("location", "/login");
@@ -66,7 +66,7 @@ public class TransactionServlet extends HttpServlet {
         resp.setContentType("text/html; charset=utf-8");
         String transferEmail = req.getParameter("email");
         int ticketId = Integer.parseInt(req.getParameter("ticketID"));
-        try(Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
+        try(Connection conn = DBCPDataSource.getConnection()) {
             ResultSet userSet = LoginUtilities.getUserQuerySet(req, conn);
             if (!userSet.next()) {
                 resp.setHeader("location", "/login");
@@ -136,13 +136,5 @@ public class TransactionServlet extends HttpServlet {
         }
         htmlTable += "</table>";
         return htmlTable;
-    }
-
-    /**
-     * @param req http request
-     * @return a connection string(url) that allows the application to connect to the database
-     */
-    public String getConnectionToken(HttpServletRequest req) {
-        return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
     }
 }

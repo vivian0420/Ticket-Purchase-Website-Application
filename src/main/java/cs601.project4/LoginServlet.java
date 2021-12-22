@@ -74,7 +74,7 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
-        try(Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
+        try(Connection conn = DBCPDataSource.getConnection()) {
             PreparedStatement providerQuery = conn.prepareStatement("select idp_id from identity_providers where name = 'Google'");
             final ResultSet providerRS = providerQuery.executeQuery();
             providerRS.next();
@@ -111,13 +111,5 @@ public class LoginServlet extends HttpServlet {
             throwables.printStackTrace();
 
         }
-    }
-
-    /**
-     * @param req http request
-     * @return a connection string(url) that allows the application to connect to the database
-     */
-    public String getConnectionToken(HttpServletRequest req) {
-        return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
     }
 }

@@ -1,14 +1,11 @@
 package cs601.project4;
 
-import com.google.gson.JsonObject;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,7 +27,7 @@ public class AccountServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        try (Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
+        try (Connection conn = DBCPDataSource.getConnection()) {
             ResultSet userSet = LoginUtilities.getUserQuerySet(req, conn);
             if (!userSet.next()) {
                 resp.setHeader("location", "/login");
@@ -58,7 +55,7 @@ public class AccountServlet extends HttpServlet {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try (Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
+        try (Connection conn = DBCPDataSource.getConnection()) {
             ResultSet userSet = LoginUtilities.getUserQuerySet(req, conn);
             if (!userSet.next()) {
                 resp.setHeader("location", "/login");
@@ -95,8 +92,9 @@ public class AccountServlet extends HttpServlet {
      * @throws SQLException An exception that provides information on a database access error or other errors.
      */
     private String getContent(String userName, int id, Connection conn) throws SQLException {
-        PreparedStatement userQuery = conn.prepareStatement("SELECT u.user_id, u.name, u.email, u.given_name, u.family_name " +
-                " FROM User u, User_session s WHERE u.user_id=?");
+        String selectString = "SELECT u.user_id, u.name, u.email, u.given_name, u.family_name " +
+                " FROM User u, User_session s WHERE u.user_id=?";
+        PreparedStatement userQuery = conn.prepareStatement(selectString);
         userQuery.setInt(1, id);
         ResultSet userResult = userQuery.executeQuery();
         userResult.next();
@@ -114,12 +112,5 @@ public class AccountServlet extends HttpServlet {
         return content;
     }
 
-    /**
-     * @param req http request
-     * @return a connection string(url) that allows the application to connect to the database
-     */
-    public String getConnectionToken(HttpServletRequest req) {
-        return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
-    }
 
 }

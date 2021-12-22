@@ -35,7 +35,7 @@ public class BuyTicketServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
 
-        try (Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
+        try (Connection conn = DBCPDataSource.getConnection()) {
 
             ResultSet userSet = LoginUtilities.getUserQuerySet(req, conn);
             if (!userSet.next()) {
@@ -65,7 +65,7 @@ public class BuyTicketServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        try (Connection conn = DriverManager.getConnection(getConnectionToken(req))) {
+        try (Connection conn = DBCPDataSource.getConnection()) {
             ResultSet userSet = LoginUtilities.getUserQuerySet(req, conn);
             if (!userSet.next()) {
                 resp.setHeader("location", "/login");
@@ -139,13 +139,5 @@ public class BuyTicketServlet extends HttpServlet {
         htmlTable += "<td><image  width='450px' src='/images?image_name=" + eventSet.getString("image_name") +"'/></td>";
         htmlTable += "</tr></table>";
         return htmlTable;
-    }
-
-    /**
-     * @param req http request
-     * @return a connection string(url) that allows the application to connect to the database
-     */
-    public String getConnectionToken(HttpServletRequest req) {
-        return ((JsonObject) req.getServletContext().getAttribute("config_key")).get("connection").getAsString();
     }
 }
